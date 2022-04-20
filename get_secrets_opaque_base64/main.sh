@@ -27,14 +27,14 @@ function download_yq(){
 function generate_secrets_files(){
     local NAMESPACE=$1
 
-    local secrets=$(oc get secrets --no-headers -n $NAMESPACE | grep opaque | awk '{print $1}')
+    local secrets=$(kubectl get secrets --no-headers -n $NAMESPACE | grep opaque | awk '{print $1}')
     if [ ! -z "$secrets" ];
     then
         mkdir -p ./${NAMESPACE}/secrets
         for secret in $secrets; 
         do 
             echo "Current secret: $secret"
-            oc get secrets/$secret -o yaml -n $NAMESPACE | yq '.data.* |=  (@base64d | from_yaml)' | yq 'del(.metadata.uid, .metadata.selfLink, .metadata.resourceVersion, .metadata.creationTimestamp, .metadata.namespace, .metadata.annotations.*)' >  ./${NAMESPACE}/secrets/$secret.yaml
+            kubectl get secrets/$secret -o yaml -n $NAMESPACE | yq '.data.* |=  (@base64d | from_yaml)' | yq 'del(.metadata.uid, .metadata.selfLink, .metadata.resourceVersion, .metadata.creationTimestamp, .metadata.namespace, .metadata.annotations)' >  ./${NAMESPACE}/secrets/$secret.yaml
         done
     else
         red "No secret found for namespace: $NAMESPACE"
