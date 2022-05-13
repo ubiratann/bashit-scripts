@@ -34,7 +34,7 @@ function generate_secrets_files(){
         for secret in $secrets; 
         do 
             echo "Current secret: $secret"
-            kubectl get secrets/$secret -o yaml -n $NAMESPACE | yq '.data.* |=  (@base64d | from_yaml)' | yq 'del(.metadata.uid, .metadata.selfLink, .metadata.resourceVersion, .metadata.creationTimestamp, .metadata.namespace, .metadata.annotations)' >  ./${NAMESPACE}/secrets/$secret.yaml
+            oc get secrets/$secret -o yaml -n $NAMESPACE | yq '.data.* |=  (@base64d | from_yaml)' | yq '.data'
         done
     else
         red "No secret found for namespace: $NAMESPACE"
