@@ -1,28 +1,5 @@
 #!/bin/bash
 
-# print text using green color
-function green(){
-    echo -e "\033[32m$1\033[0m"
-}
-
-# print text using red color
-function red(){
-    echo -e "\033[31m$1\033[m"
-}
-
-# download yq tool to update yaml files
-function download_yq(){
-    if [ ! -f "/usr/local/bin/yq" ];
-    then
-        echo "Downloading yq binary"
-        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-        sudo chmod a+x /usr/local/bin/yq
-        green "yq has been installed"
-    else
-        green "yq is already installed"
-    fi
-}
-
 #generating secrets by namespace
 function generate_secrets_files(){
     local NAMESPACE=$1
@@ -33,10 +10,10 @@ function generate_secrets_files(){
         for secret in $secrets; 
         do 
             echo "Current secret: $secret"
-            oc get secrets/$secret -o yaml -n $NAMESPACE | yq '.data.* |=  (@base64d | from_yaml)' | yq '.data'
+            kubectl get secrets/$secret -o yaml -n $NAMESPACE | yq '.data.* |=  (@base64d | from_yaml)' | yq '.data' > teste
         done
     else
-        red "No secret found for namespace: $NAMESPACE"
+        echo "No secret found for namespace: $NAMESPACE"
     fi
     secrets=""
 
@@ -50,7 +27,7 @@ function main(){
     echo -e "\n"
     while IFS= read -r line || [ -n "$line" ]
     do
-        green "Getting files from namespace: $line"
+        echo "Getting files from namespace: $line"
         generate_secrets_files $line
         echo -e "\n"
     done < "$namespace_file"
