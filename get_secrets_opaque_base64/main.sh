@@ -30,7 +30,6 @@ function generate_secrets_files(){
     local secrets=$(kubectl get secrets --no-headers -n $NAMESPACE | grep opaque | awk '{print $1}')
     if [ ! -z "$secrets" ];
     then
-        mkdir -p ./${NAMESPACE}/secrets
         for secret in $secrets; 
         do 
             echo "Current secret: $secret"
